@@ -279,11 +279,31 @@ with tf.Session(graph=graph) as session:
         # Generate some samples.
         print('=' * 80)
         for _ in range(5):
+          # randomly choose a character, feed is a list containing a character
           feed = sample(random_distribution())
           sentence = characters(feed)[0]
+          # random_distribution: [[ 0.01719615  0.06175963  0.04244341  0.03004981  0.05211375  0.0710336
+          #                           0.05377566  0.006236    0.00193955  0.05680597  0.00781353  0.0346534
+          #                            0.07127003  0.01879589  0.02921738  0.02241999  0.03025794  0.07310759
+          #                            0.02185466  0.01438982  0.0197279   0.02517248  0.05033242  0.04564802
+          #                            0.06283782  0.01700192  0.06214569]]
+          # feed: [[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  1.  0.  0.  0.  0.  0.  0.  0.  0.
+          #    0.  0.  0.  0.  0.  0.  0.  0.  0.]]
+          # characters(feed): ['i']
+
           reset_sample_state.run()
           for _ in range(79):
+            # feed `feed` to sample_input
             prediction = sample_prediction.eval({sample_input: feed})
+            # print(prediction.shape)
+            # (1, 27)
+            # print(prediction)
+            # [[ 0.12907754  0.04524855  0.02538893  0.03293395  0.03294472  0.06511104
+            #    0.03066035  0.02871223  0.03261187  0.04979326  0.02327702  0.02365923
+            #    0.03091505  0.03251034  0.04431179  0.04243618  0.03109427  0.02317456
+            #    0.03954943  0.03628377  0.04683968  0.02866956  0.02505586  0.02529314
+            #    0.02489516  0.02701444  0.02253803]]
+            # if prediction is fixed, the feed character is still randomly choosed !!!!!!
             feed = sample(prediction)
             sentence += characters(feed)[0]
           print(sentence)
@@ -297,4 +317,5 @@ with tf.Session(graph=graph) as session:
         valid_logprob = valid_logprob + logprob(predictions, b[1])
       print('Validation set perplexity: %.2f' % float(np.exp(
         valid_logprob / valid_size)))
+
 # It took about 3 or 4 minutes
